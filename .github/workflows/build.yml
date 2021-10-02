@@ -21,7 +21,7 @@ jobs:
             os: ubuntu-20.04
             bindgen-clang-args: --sysroot /usr/aarch64-linux-gnu
             cargo-linker: aarch64-linux-gnu-gcc
-            strip-prefix: aarch64-linux-gnu
+            strip-prefix: aarch64-linux-gnu-
           - target: x86_64-pc-windows-msvc
             os: windows-2019
           - target: x86_64-apple-darwin
