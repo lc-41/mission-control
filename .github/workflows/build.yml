@@ -12,6 +12,7 @@ jobs:
   build-player:
     name: Build player
     strategy:
+      fail-fast: false
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
@@ -20,6 +21,7 @@ jobs:
             os: ubuntu-20.04
             bindgen-clang-args: --sysroot /usr/aarch64-linux-gnu
             cargo-linker: aarch64-linux-gnu-gcc
+            strip-prefix: aarch64-linux-gnu
           - target: x86_64-pc-windows-msvc
             os: windows-2019
           - target: x86_64-apple-darwin
@@ -51,7 +53,7 @@ jobs:
           repository: alisww/blaseball.vcr
           ref: ${{ env.vcr_commit }}
       - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target ${{ matrix.target }}
-      - run: strip target/${{ matrix.target }}/release/player
+      - run: ${{ matrix.strip-prefix }}strip target/${{ matrix.target }}/release/player
         if: ${{ matrix.os != 'windows-2019' }}
       - uses: actions/upload-artifact@v2
         with:
