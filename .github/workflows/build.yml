@@ -18,7 +18,7 @@ jobs:
             os: ubuntu-20.04
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-20.04
-            bindgen-clang-args: "--sysroot /usr/aarch64-linux-gnu"
+            bindgen-clang-args: --sysroot /usr/aarch64-linux-gnu
             cargo-linker: aarch64-linux-gnu-gcc
           - target: x86_64-pc-windows-msvc
             os: windows-2019
@@ -36,14 +36,14 @@ jobs:
       CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: ${{ matrix.cargo-linker }}
     steps:
       - run: sudo apt-get install -y llvm-dev libclang-dev clang
-        if: ${{ matrix.os == "ubuntu-20.04" }}
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
       - run: sudo apt-get install -y gcc-aarch64-linux-gnu
-        if: ${{ matrix.target == "aarch64-unknown-linux-gnu" }}
+        if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
       - uses: KyleMayes/install-llvm-action@v1
         with:
-          version: "12.0.1"
+          version: '12.0.1'
           directory: ${{ runner.temp }}/llvm
-        if: ${{ matrix.os == "windows-2019" }}
+        if: ${{ matrix.os == 'windows-2019' }}
       - run: rustup install ${{ env.rust_ver }}
       - run: rustup target add ${{ matrix.target }} --toolchain ${{ env.rust_ver }}
       - uses: actions/checkout@v2
@@ -53,7 +53,7 @@ jobs:
       - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target ${{ matrix.target }}
         env: ${{ matrix.env }}
       - run: strip target/${{ matrix.target }}/release/player
-        if: ${{ matrix.os != "windows-2019" }}
+        if: ${{ matrix.os != 'windows-2019' }}
       - uses: actions/upload-artifact@v2
         with:
           name: player-${{ matrix.target }}
