@@ -17,7 +17,7 @@ jobs:
     name: Build player for Linux
     runs-on: ubuntu-20.04
     steps:
-      - run: sudo apt-get install -y llvm-dev libclang-dev clang
+      - run: sudo apt-get install -y llvm-dev libclang-dev clang gcc-aarch64-linux-gnu
       - run: rustup install ${{ env.rust_ver }}
       - run: rustup target add aarch64-unknown-linux-gnu --toolchain ${{ env.rust_ver }}
       - uses: actions/checkout@v2
@@ -38,6 +38,10 @@ jobs:
     name: Build player for Windows
     runs-on: windows-2019
     steps:
+      - uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "12.0.1"
+          directory: ${{ runner.temp }}/llvm
       - run: rustup install ${{ env.rust_ver }}
       - uses: actions/checkout@v2
         with:
