@@ -51,7 +51,6 @@ jobs:
           repository: alisww/blaseball.vcr
           ref: ${{ env.vcr_commit }}
       - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target ${{ matrix.target }}
-        env: ${{ matrix.env }}
       - run: strip target/${{ matrix.target }}/release/player
         if: ${{ matrix.os != 'windows-2019' }}
       - uses: actions/upload-artifact@v2
