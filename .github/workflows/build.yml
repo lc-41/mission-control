@@ -7,69 +7,56 @@ on:
 env:
   vcr_commit: 605686a49690fecefe534efeeb6f5c0930fa1d8f
   rust_ver: "1.55"
-  CARGO_PROFILE_RELEASE_LTO: fat
-  CARGO_PROFILE_RELEASE_OPT_LEVEL: z
-  RUSTFLAGS: -C target-feature=+crt-static
-  VOYAGER_CROSS_HACK: 1
 
 jobs:
-  build-player-linux:
-    name: Build player for Linux
-    runs-on: ubuntu-20.04
+  build-player:
+    name: Build player
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-20.04
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-20.04
+            bindgen-clang-args: "--sysroot /usr/aarch64-linux-gnu"
+            cargo-linker: aarch64-linux-gnu-gcc
+          - target: x86_64-pc-windows-msvc
+            os: windows-2019
+          - target: x86_64-apple-darwin
+            os: macos-11
+          - target: aarch64-apple-darwin
+            os: macos-11
+    runs-on: ${{ matrix.os }}
+    env:
+      CARGO_PROFILE_RELEASE_LTO: fat
+      CARGO_PROFILE_RELEASE_OPT_LEVEL: z
+      RUSTFLAGS: -C target-feature=+crt-static
+      VOYAGER_CROSS_HACK: 1
+      BINDGEN_EXTRA_CLANG_ARGS: ${{ matrix.bindgen-clang-args }}
+      CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: ${{ matrix.cargo-linker }}
     steps:
-      - run: sudo apt-get install -y llvm-dev libclang-dev clang gcc-aarch64-linux-gnu
-      - run: rustup install ${{ env.rust_ver }}
-      - run: rustup target add aarch64-unknown-linux-gnu --toolchain ${{ env.rust_ver }}
-      - uses: actions/checkout@v2
-        with:
-          repository: alisww/blaseball.vcr
-          ref: ${{ env.vcr_commit }}
-      - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target x86_64-unknown-linux-gnu
-      - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target aarch64-unknown-linux-gnu
-        env:
-          BINDGEN_EXTRA_CLANG_ARGS: "--sysroot /usr/aarch64-linux-gnu"
-      - run: strip target/x86_64-unknown-linux-gnu/release/player target/aarch64-unknown-linux-gnu/release/player
-      - uses: actions/upload-artifact@v2
-        with:
-          name: player-linux
-          path: |
-            target/x86_64-unknown-linux-gnu/release/player
-            target/aarch64-unknown-linux-gnu/release/player
-
-  build-player-windows:
-    name: Build player for Windows
-    runs-on: windows-2019
-    steps:
+      - run: sudo apt-get install -y llvm-dev libclang-dev clang
+        if: ${{ matrix.os == "ubuntu-20.04" }}
+      - run: sudo apt-get install -y gcc-aarch64-linux-gnu
+        if: ${{ matrix.target == "aarch64-unknown-linux-gnu" }}
       - uses: KyleMayes/install-llvm-action@v1
         with:
           version: "12.0.1"
           directory: ${{ runner.temp }}/llvm
+        if: ${{ matrix.os == "windows-2019" }}
       - run: rustup install ${{ env.rust_ver }}
+      - run: rustup target add ${{ matrix.target }} --toolchain ${{ env.rust_ver }}
       - uses: actions/checkout@v2
         with:
           repository: alisww/blaseball.vcr
           ref: ${{ env.vcr_commit }}
-      - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target x86_64-pc-windows-msvc
+      - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target ${{ matrix.target }}
+        env: ${{ matrix.env }}
+      - run: strip target/${{ matrix.target }}/release/player
+        if: ${{ matrix.os != "windows-2019" }}
       - uses: actions/upload-artifact@v2
         with:
-          name: player-windows
-          path: target/x86_64-pc-windows-msvc/release/player
-
-  build-player-macos:
-    name: Build player for macOS
-    runs-on: macos-11
-    steps:
-      - run: rustup install ${{ env.rust_ver }}
-      - run: rustup target add aarch64-apple-darwin --toolchain ${{ env.rust_ver }}
-      - uses: actions/checkout@v2
-        with:
-          repository: alisww/blaseball.vcr
-          ref: ${{ env.vcr_commit }}
-      - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target x86_64-apple-darwin
-      - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target aarch64-apple-darwin
-      - run: strip target/x86_64-apple-darwin/release/player target/aarch64-apple-darwin/release/player
-      - run: lipo -create -output target/x86_64-apple-darwin/release/player.lipo target/x86_64-apple-darwin/release/player target/aarch64-apple-darwin/release/player
-      - uses: actions/upload-artifact@v2
-        with:
-          name: player-macos
-          path: target/x86_64-apple-darwin/release/player.lipo
+          name: player-${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/player
+            target/${{ matrix.target }}/release/player.exe
