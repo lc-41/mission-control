@@ -100,7 +100,8 @@ jobs:
           path: blaseball.vcr
           fetch-depth: 0
       - uses: actions/checkout@v2
-        path: scripts
+        with:
+          path: scripts
       - run: ./scripts/build-static.sh
       - uses: actions/upload-artifact@v2
         with:
@@ -115,7 +116,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-        path: scripts
+        with:
+          path: scripts
       - uses: actions/download-artifact@v2
         with:
           path: artifacts
