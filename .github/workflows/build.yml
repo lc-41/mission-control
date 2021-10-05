@@ -92,7 +92,7 @@ jobs:
     name: Build static.zip and source.tar.zst
     runs-on: ubuntu-20.04
     steps:
-      - run: sudo apt-get install -y git-restore-mtime hardlink
+      - run: sudo apt-get install -y hardlink
       - uses: actions/checkout@v2
         with:
           repository: alisww/blaseball.vcr
