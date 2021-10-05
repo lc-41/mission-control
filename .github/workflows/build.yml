@@ -47,7 +47,7 @@ jobs:
           version: '12.0.1'
           directory: ${{ runner.temp }}/llvm
         if: ${{ matrix.os == 'windows-2019' }}
-      - run: rustup install ${{ env.rust_ver }}
+      - run: rustup default ${{ env.rust_ver }}
       - run: rustup target add ${{ matrix.target }} --toolchain ${{ env.rust_ver }}
       - uses: actions/checkout@v2
         with:

@@ -12,7 +12,7 @@ chmod a+x voyager/Voyager-{Linux-{x86_64,aarch64},macOS}
 skopeo copy "docker://ghcr.io/lc-41/tapes@$tapes_digest" oci:tapes
 manifest="$(jq -r '.manifests[].digest | split(":")[1]' tapes/index.json)"
 blob="$(jq -r '.layers[0].digest | split(":")[1]' "tapes/blobs/sha256/$manifest")"
-tar -C voyager/data xvf "tapes/blobs/sha256/$blob"
+tar -C voyager/data -xvf "tapes/blobs/sha256/$blob"
 
 echo "=== CHECKSUMS START ==="
 (cd voyager; find . -type f | sort | sha256sum)
