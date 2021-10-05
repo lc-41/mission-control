@@ -53,6 +53,7 @@ jobs:
         with:
           repository: alisww/blaseball.vcr
           ref: ${{ env.vcr_commit }}
+      - uses: Swatinem/rust-cache@v1
       - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target ${{ matrix.target }}
       - run: ${{ matrix.strip-prefix }}strip target/${{ matrix.target }}/release/player
         if: ${{ matrix.os != 'windows-2019' }}
