@@ -5,6 +5,7 @@ on:
       - main
 
 env:
+  # due to Reasons (see build-static) this must both be a valid rust toolchain and docker.io/library/rust tag
   rust_ver: "1.55"
   vcr_commit: e8780bf964075251cd27b995cabe9c73ffeb26cc
   tapes_digest: sha256:bf6050d82413b64addb074e722ab2035b4505cca6c790279407b36d2c3a0dfe4
@@ -93,11 +94,11 @@ jobs:
         with:
           repository: alisww/blaseball.vcr
           ref: ${{ env.vcr_commit }}
-      - run: rustup default ${{ env.rust_ver }}
+      # run `cargo vendor` in a container as a workaround for https://github.com/rust-lang/cargo/issues/8443
       - run: |
           mkdir -p .cargo
-          cd "$(readlink -f "$PWD")"
-          HOME="$(readlink -f "$HOME")" cargo vendor > .cargo/config.toml
+          docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/work" -w /work \
+            "rust:${{ env.rust_ver }}" cargo vendor > .cargo/config.toml
           hardlink vendor
       - run: |
           pushd vendor/before
