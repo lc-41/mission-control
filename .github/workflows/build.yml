@@ -96,5 +96,6 @@ jobs:
       - run: |
           eval `ssh-agent -s`
           ssh-add - <<< "${{ secrets.SSH_KEY }}"
+          mkdir ~/.ssh
           echo "titan.voyager.sibr.dev ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAqq1x52soxzB++4uxArxXoKBT4d1J6MpnY/LZMnTXtbsQWqDBp5sysG7u5RCeyiKedLs41ICWvxt6ruiLHLhI0=" >> ~/.ssh/known_hosts
           ./upload-iso.sh
