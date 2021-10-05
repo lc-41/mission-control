@@ -96,6 +96,7 @@ jobs:
       - run: rustup default ${{ env.rust_ver }}
       - run: |
           mkdir -p .cargo
+          cd "$(readlink -f "$PWD")"
           HOME="$(readlink -f "$HOME")" cargo vendor > .cargo/config.toml
           hardlink vendor
       - run: |
