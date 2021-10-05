@@ -97,8 +97,8 @@ jobs:
         with:
           repository: alisww/blaseball.vcr
           ref: ${{ env.VCR_COMMIT }}
-          path: blaseball.vcr
           fetch-depth: 0
+      - uses: chetan/git-restore-mtime-action@v1
       - uses: actions/checkout@v2
         with:
           path: scripts
@@ -107,8 +107,8 @@ jobs:
         with:
           name: static-and-source
           path: |
-            static.zip
-            source.tar.zst
+            artifacts/static.zip
+            artifacts/source.tar.zst
 
   build-iso:
     name: Build ISO

@@ -1,8 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 
-cd blaseball.vcr
-git-restore-mtime
+mkdir artifacts
 
 mkdir -p .cargo
 # run `cargo vendor` in a container as a workaround for https://github.com/rust-lang/cargo/issues/8443
@@ -17,13 +16,13 @@ zip -9qr static.zip static
 rm -rf static/*
 echo "see static.zip elsewhere on the Voyager disc" > static/README
 popd
-mv vendor/before/static.zip ../
+mv vendor/before/static.zip artifacts/
 
 echo "see zstd-dictionaries elsewhere on the Voyager disc" > zstd-dictionaries/README
 unset POSIXLY_CORRECT # this should be the case but do it just in case
 shopt -s dotglob
 tar --sort=name --owner=0 --group=0 --numeric-owner \
-    --exclude=.git --exclude="zstd-dictionaries/*.dict" \
-    -cf ../source.tar -- *
+    --exclude=.git --exclude=artifacts --exclude="zstd-dictionaries/*.dict" \
+    -cf artifacts/source.tar -- *
 shopt -u dotglob
-zstd -q -19 ../source.tar
+zstd -q -19 artifacts/source.tar
