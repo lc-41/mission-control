@@ -15,6 +15,8 @@ manifest="$(jq -r '.manifests[].digest | split(":")[1]' tapes/index.json)"
 blob="$(jq -r '.layers[0].digest | split(":")[1]' "tapes/blobs/sha256/$manifest")"
 tar -C voyager/data -xvf "tapes/blobs/sha256/$blob"
 
+cp artifacts/static-and-source/* voyager/data/
+
 echo "=== CHECKSUMS START ==="
 (cd voyager; find . -type f | sort | sha256sum)
 echo "=== CHECKSUMS END ==="

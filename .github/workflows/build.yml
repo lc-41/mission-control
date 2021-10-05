@@ -54,6 +54,8 @@ jobs:
           repository: alisww/blaseball.vcr
           ref: ${{ env.vcr_commit }}
       - uses: Swatinem/rust-cache@v1
+        with:
+          key: ${{ matrix.target }}
       - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target ${{ matrix.target }}
       - run: ${{ matrix.strip-prefix }}strip target/${{ matrix.target }}/release/player
         if: ${{ matrix.os != 'windows-2019' }}
@@ -83,9 +85,43 @@ jobs:
           name: player-universal-apple-darwin
           path: player
 
+  build-static:
+    name: Build static.zip and source.tar.zst
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: alisww/blaseball.vcr
+          ref: ${{ env.vcr_commit }}
+      - run: rustup default ${{ env.rust_ver }}
+      - run: |
+          mkdir -p .cargo
+          cargo vendor > .cargo/config.toml
+          hardlink vendor
+      - run: |
+          pushd vendor/before
+          zip -9 -r static.zip static
+          strip-nondeterminism static.zip
+          rm -rf static/*
+          echo "see static.zip elsewhere on the Voyager disc" > static/README
+          popd
+          mv vendor/before/static.zip ./
+      - run: |
+          shopt -s dotglob
+          tar --sort=name --exclude=.git --exclude=static.zip --exclude="zstd-dictionaries/*" -cvf ../source.tar *
+          strip-nondeterminism ../source.tar
+          zstd -19 ../source.tar
+          mv ../source.tar.zst ./
+      - uses: actions/upload-artifact@v2
+        with:
+          name: static-and-source
+          path: |
+            static.zip
+            source.tar.zst
+
   build-iso:
     name: Build ISO
-    needs: [build-player, run-lipo]
+    needs: [build-player, run-lipo, build-static]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
