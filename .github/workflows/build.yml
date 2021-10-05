@@ -6,7 +6,7 @@ on:
 
 env:
   rust_ver: "1.55"
-  vcr_commit: 605686a49690fecefe534efeeb6f5c0930fa1d8f
+  vcr_commit: e8780bf964075251cd27b995cabe9c73ffeb26cc
   tapes_digest: sha256:bf6050d82413b64addb074e722ab2035b4505cca6c790279407b36d2c3a0dfe4
 
 jobs:
@@ -38,7 +38,7 @@ jobs:
       BINDGEN_EXTRA_CLANG_ARGS: ${{ matrix.bindgen-clang-args }}
       CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: ${{ matrix.cargo-linker }}
     steps:
-      - run: sudo apt-get install -y llvm-dev libclang-dev clang
+      - run: sudo apt-get install -y llvm-dev libclang-dev clang git-restore-mtime
         if: ${{ matrix.os == 'ubuntu-20.04' }}
       - run: sudo apt-get install -y gcc-aarch64-linux-gnu
         if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
@@ -53,6 +53,7 @@ jobs:
         with:
           repository: alisww/blaseball.vcr
           ref: ${{ env.vcr_commit }}
+      - run: git-restore-mtime -c
       - uses: Swatinem/rust-cache@v1
       - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target ${{ matrix.target }}
       - run: ${{ matrix.strip-prefix }}strip target/${{ matrix.target }}/release/player
@@ -96,4 +97,5 @@ jobs:
       - run: |
           eval `ssh-agent -s`
           ssh-add - <<< "${{ secrets.SSH_KEY }}"
+          echo "titan.voyager.sibr.dev ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAqq1x52soxzB++4uxArxXoKBT4d1J6MpnY/LZMnTXtbsQWqDBp5sysG7u5RCeyiKedLs41ICWvxt6ruiLHLhI0=" >> ~/.ssh/known_hosts
           ./upload-iso.sh
