@@ -5,10 +5,10 @@ on:
       - main
 
 env:
-  # due to Reasons (see build-static) this must both be a valid rust toolchain and docker.io/library/rust tag
-  rust_ver: "1.55"
-  vcr_commit: e8780bf964075251cd27b995cabe9c73ffeb26cc
-  tapes_digest: sha256:bf6050d82413b64addb074e722ab2035b4505cca6c790279407b36d2c3a0dfe4
+  # due to Reasons (see build-static.sh) this must both be a valid rust toolchain and docker.io/library/rust tag
+  RUST_VER: '1.55'
+  VCR_COMMIT: e8780bf964075251cd27b995cabe9c73ffeb26cc
+  TAPES_DIGEST: sha256:bf6050d82413b64addb074e722ab2035b4505cca6c790279407b36d2c3a0dfe4
 
 jobs:
   build-player:
@@ -48,16 +48,18 @@ jobs:
           version: '12.0.1'
           directory: ${{ runner.temp }}/llvm
         if: ${{ matrix.os == 'windows-2019' }}
-      - run: rustup default ${{ env.rust_ver }}
-      - run: rustup target add ${{ matrix.target }} --toolchain ${{ env.rust_ver }}
+      - run: rustup default ${{ env.RUST_VER }}
+      - run: rustup target add ${{ matrix.target }} --toolchain ${{ env.RUST_VER }}
       - uses: actions/checkout@v2
         with:
           repository: alisww/blaseball.vcr
-          ref: ${{ env.vcr_commit }}
+          ref: ${{ env.VCR_COMMIT }}
+          fetch-depth: 0
+      - uses: chetan/git-restore-mtime-action@v1
       - uses: Swatinem/rust-cache@v1
         with:
           key: ${{ matrix.target }}
-      - run: cargo +${{ env.rust_ver }} build --release -p player --features bundle_before --target ${{ matrix.target }}
+      - run: cargo +${{ env.RUST_VER }} build --release -p player --features bundle_before --target ${{ matrix.target }}
       - run: ${{ matrix.strip-prefix }}strip target/${{ matrix.target }}/release/player
         if: ${{ matrix.os != 'windows-2019' }}
       - uses: actions/upload-artifact@v2
@@ -90,31 +92,16 @@ jobs:
     name: Build static.zip and source.tar.zst
     runs-on: ubuntu-20.04
     steps:
-      - run: sudo apt-get install -y hardlink strip-nondeterminism
+      - run: sudo apt-get install -y git-restore-mtime hardlink
       - uses: actions/checkout@v2
         with:
           repository: alisww/blaseball.vcr
-          ref: ${{ env.vcr_commit }}
-      # run `cargo vendor` in a container as a workaround for https://github.com/rust-lang/cargo/issues/8443
-      - run: |
-          mkdir -p .cargo
-          docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/work" -w /work \
-            "rust:${{ env.rust_ver }}" cargo vendor > .cargo/config.toml
-          hardlink vendor
-      - run: |
-          pushd vendor/before
-          zip -9 -r static.zip static
-          strip-nondeterminism static.zip
-          rm -rf static/*
-          echo "see static.zip elsewhere on the Voyager disc" > static/README
-          popd
-          mv vendor/before/static.zip ./
-      - run: |
-          shopt -s dotglob
-          tar --sort=name --exclude=.git --exclude=static.zip --exclude="zstd-dictionaries/*" -cvf ../source.tar *
-          strip-nondeterminism ../source.tar
-          zstd -19 ../source.tar
-          mv ../source.tar.zst ./
+          ref: ${{ env.VCR_COMMIT }}
+          path: blaseball.vcr
+          fetch-depth: 0
+      - uses: actions/checkout@v2
+        path: scripts
+      - run: ./scripts/build-static.sh
       - uses: actions/upload-artifact@v2
         with:
           name: static-and-source
@@ -128,13 +115,15 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+        path: scripts
       - uses: actions/download-artifact@v2
         with:
           path: artifacts
-      - run: ./build-iso.sh
+      - run: ./scripts/build-iso.sh
       - run: |
+          set -euxo pipefail
           eval `ssh-agent -s`
           ssh-add - <<< "${{ secrets.SSH_KEY }}"
           mkdir ~/.ssh
           echo "titan.voyager.sibr.dev ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAqq1x52soxzB++4uxArxXoKBT4d1J6MpnY/LZMnTXtbsQWqDBp5sysG7u5RCeyiKedLs41ICWvxt6ruiLHLhI0=" >> ~/.ssh/known_hosts
-          ./upload-iso.sh
+          ./scripts/upload-iso.sh

@@ -9,8 +9,7 @@ cp artifacts/player-x86_64-pc-windows-msvc/player.exe voyager/Voyager-Windows.ex
 cp artifacts/player-universal-apple-darwin/player voyager/Voyager-macOS
 chmod a+x voyager/Voyager-{Linux-{x86_64,aarch64},macOS}
 
-# shellcheck disable=SC2154
-skopeo copy "docker://ghcr.io/lc-41/tapes@$tapes_digest" oci:tapes
+skopeo copy "docker://ghcr.io/lc-41/tapes@$TAPES_DIGEST" oci:tapes
 manifest="$(jq -r '.manifests[].digest | split(":")[1]' tapes/index.json)"
 blob="$(jq -r '.layers[0].digest | split(":")[1]' "tapes/blobs/sha256/$manifest")"
 tar -C voyager/data -xvf "tapes/blobs/sha256/$blob"
