@@ -5,8 +5,9 @@ on:
       - main
 
 env:
-  vcr_commit: 605686a49690fecefe534efeeb6f5c0930fa1d8f
   rust_ver: "1.55"
+  vcr_commit: 605686a49690fecefe534efeeb6f5c0930fa1d8f
+  tapes_digest: sha256:bf6050d82413b64addb074e722ab2035b4505cca6c790279407b36d2c3a0dfe4
 
 jobs:
   build-player:
@@ -61,3 +62,37 @@ jobs:
           path: |
             target/${{ matrix.target }}/release/player
             target/${{ matrix.target }}/release/player.exe
+
+  run-lipo:
+    name: Create universal macOS binary
+    needs: build-player
+    runs-on: macos-11
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: player-x86_64-apple-darwin
+          path: artifacts/player-x86_64-apple-darwin
+      - uses: actions/download-artifact@v2
+        with:
+          name: player-aarch64-apple-darwin
+          path: artifacts/player-aarch64-apple-darwin
+      - run: lipo -create -output player artifacts/player-x86_64-apple-darwin/player artifacts/player-aarch64-apple-darwin/player
+      - uses: actions/upload-artifact@v2
+        with:
+          name: player-universal-apple-darwin
+          path: player
+
+  build-iso:
+    name: Build ISO
+    needs: [build-player, run-lipo]
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+      - run: ./build-iso.sh
+      - run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< "${{ secrets.SSH_KEY }}"
+          ./upload-iso.sh
