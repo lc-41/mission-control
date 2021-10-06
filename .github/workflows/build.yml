@@ -130,4 +130,5 @@ jobs:
           mkdir ~/.ssh
           echo 'titan.voyager.sibr.dev ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAqq1x52soxzB++4uxArxXoKBT4d1J6MpnY/LZMnTXtbsQWqDBp5sysG7u5RCeyiKedLs41ICWvxt6ruiLHLhI0=' >> ~/.ssh/known_hosts
           ./scripts/upload-iso.sh
-      - run: ./notify-discord.py | curl -X POST -d @- -H 'content-type: application/json' '${{ secrets.DISCORD_WEBHOOK }}'
+      - run: |
+          ./notify-discord.py | curl -X POST -d @- -H 'content-type: application/json' '${{ secrets.DISCORD_WEBHOOK }}'
