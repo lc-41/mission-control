@@ -7,7 +7,6 @@ mkdir -p .cargo
 # run `cargo vendor` in a container as a workaround for https://github.com/rust-lang/cargo/issues/8443
 docker run --rm -u "$(id -u):$(id -g)" -v "$PWD:/work" -w /work \
     "rust:$RUST_VER" cargo vendor > .cargo/config.toml
-hardlink vendor
 # clamp vendor mtimes at Cargo.lock's mtime
 find vendor -newer Cargo.lock -print0 | xargs -0r touch --no-dereference --reference=Cargo.lock
 
