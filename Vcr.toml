@@ -1,7 +1,7 @@
 [default]
 static_dir = "./data/static"
 static_zip_path = "./data/static.zip"
-site_cache = false
+site_cache = true
 
 [default.vcr]
 entities_cache_size = 100

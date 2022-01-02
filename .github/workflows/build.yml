@@ -7,8 +7,8 @@ on:
 env:
   # due to Reasons (see build-static.sh) this must both be a valid rust toolchain and docker.io/library/rust tag
   RUST_VER: '1.56'
-  VCR_COMMIT: 9d277d27c6813ebd6e64fb971224e51c7b1fe224
-  TAPES_DIGEST: sha256:14ea09b433f776ae3db84316adad627776cbfc72e2e5377abae01e06c1da4606
+  VCR_COMMIT: eadd76a322a1dd96b0b924007b628844a37e4f91
+  TAPES_DIGEST: sha256:9b3bc1efc018a3bfa6a5d897ad8f4d74b134cd103d4d905963abd199b9c964c3 
   SIGILS_DIGEST: sha256:ac57e7acc0dd67a89ea3f889209dfdd20652243d1e2683b2781ecaae4dd95c78
 
 jobs:
@@ -36,19 +36,11 @@ jobs:
       CARGO_PROFILE_RELEASE_LTO: fat
       CARGO_PROFILE_RELEASE_OPT_LEVEL: z
       RUSTFLAGS: -C target-feature=+crt-static
-      VOYAGER_CROSS_HACK: 1
       BINDGEN_EXTRA_CLANG_ARGS: ${{ matrix.bindgen-clang-args }}
       CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: ${{ matrix.cargo-linker }}
     steps:
-      - run: sudo apt-get update && sudo apt-get install -y llvm-dev libclang-dev clang
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
       - run: sudo apt-get install -y gcc-aarch64-linux-gnu
         if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
-      - uses: KyleMayes/install-llvm-action@v1
-        with:
-          version: '12.0.1'
-          directory: ${{ runner.temp }}/llvm
-        if: ${{ matrix.os == 'windows-2019' }}
       - run: rustup default ${{ env.RUST_VER }}
       - run: rustup target add ${{ matrix.target }} --toolchain ${{ env.RUST_VER }}
       - uses: actions/checkout@v2
