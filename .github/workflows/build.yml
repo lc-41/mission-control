@@ -6,7 +6,7 @@ on:
 
 env:
   RUST_VER: '1.58.0'
-  VCR_COMMIT: eadd76a322a1dd96b0b924007b628844a37e4f91
+  VCR_COMMIT: 9c289a027ba9edbe9f04b9b46c5d7cd1a80d3f80
   TAPES_DIGEST: sha256:9b3bc1efc018a3bfa6a5d897ad8f4d74b134cd103d4d905963abd199b9c964c3 
   SIGILS_DIGEST: sha256:ac57e7acc0dd67a89ea3f889209dfdd20652243d1e2683b2781ecaae4dd95c78
 
@@ -21,7 +21,6 @@ jobs:
             os: ubuntu-20.04
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-20.04
-            bindgen-clang-args: --sysroot /usr/aarch64-linux-gnu
             cargo-linker: aarch64-linux-gnu-gcc
             strip-prefix: aarch64-linux-gnu-
           - target: x86_64-pc-windows-msvc
@@ -32,10 +31,10 @@ jobs:
             os: macos-11
     runs-on: ${{ matrix.os }}
     env:
+      SKIP_ASSET_BUILD: sure
       CARGO_PROFILE_RELEASE_LTO: fat
       CARGO_PROFILE_RELEASE_OPT_LEVEL: z
       RUSTFLAGS: -C target-feature=+crt-static
-      BINDGEN_EXTRA_CLANG_ARGS: ${{ matrix.bindgen-clang-args }}
       CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: ${{ matrix.cargo-linker }}
     steps:
       - run: sudo apt-get install -y gcc-aarch64-linux-gnu

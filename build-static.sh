@@ -12,6 +12,12 @@ cargo vendor > .cargo/config.toml
 find vendor -newer Cargo.lock -print0 | xargs -0r touch --no-dereference --reference=Cargo.lock
 
 pushd vendor/before
+# do build.rs's asset generation
+npm ci
+cargo check --no-default-features
+cargo clean
+find static -newer Cargo.lock -print0 | xargs -0r touch --no-dereference --reference=Cargo.lock
+# zip it up
 zip -9qr static.zip static
 rm -rf static/*
 echo "see static.zip elsewhere on the Voyager disc" > static/README
