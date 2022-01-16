@@ -91,9 +91,6 @@ jobs:
           fetch-depth: 0
       - uses: chetan/git-restore-mtime-action@v1
       - uses: Swatinem/rust-cache@v1
-        with:
-          key: build-static
-          sharedKey: x86_64-unknown-linux-gnu
       - uses: actions/checkout@v2
         with:
           path: scripts
