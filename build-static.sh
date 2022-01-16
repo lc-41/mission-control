@@ -42,4 +42,4 @@ tar --sort=name --owner=0 --group=0 --numeric-owner \
     --exclude=.git --exclude=artifacts --exclude="zstd-dictionaries/*.dict" \
     -cf artifacts/source.tar -- *
 shopt -u dotglob
-zstd -9e artifacts/source.tar
+xz -9e artifacts/source.tar
