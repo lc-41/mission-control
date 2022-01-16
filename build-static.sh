@@ -23,6 +23,7 @@ find vendor -newer Cargo.lock -print0 | xargs -0r touch --no-dereference --refer
 # do build.rs's asset generation
 pushd vendor/before
 npm ci --production=false
+touch static  # force build.rs to rerun despite cache
 popd
 cargo check -p player --features bundle_before
 cargo clean

@@ -83,16 +83,20 @@ jobs:
     name: Build static.zip and source.tar.zst
     runs-on: ubuntu-20.04
     steps:
+      - run: rustup default ${{ env.RUST_VER }}
       - uses: actions/checkout@v2
         with:
           repository: alisww/blaseball.vcr
           ref: ${{ env.VCR_COMMIT }}
           fetch-depth: 0
       - uses: chetan/git-restore-mtime-action@v1
+      - uses: Swatinem/rust-cache@v1
+        with:
+          key: build-static
+          sharedKey: x86_64-unknown-linux-gnu
       - uses: actions/checkout@v2
         with:
           path: scripts
-      - run: rustup default ${{ env.RUST_VER }}
       - run: ./scripts/build-static.sh
       - uses: actions/upload-artifact@v2
         with:
