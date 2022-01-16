@@ -99,7 +99,7 @@ jobs:
           name: static-and-source
           path: |
             artifacts/static.zip
-            artifacts/source.tar.zst
+            artifacts/source.tar.xz
 
   build-iso:
     name: Build ISO

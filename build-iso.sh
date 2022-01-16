@@ -20,7 +20,7 @@ cp artifacts/player-universal-apple-darwin/player voyager/Voyager-macOS
 chmod a+x voyager/Voyager-{Linux-{x86_64,aarch64},macOS}
 
 cp artifacts/static-and-source/static.zip voyager/data/
-cp artifacts/static-and-source/source.tar.zst voyager/data/
+cp artifacts/static-and-source/source.tar.xz voyager/data/
 
 dl_ghcr "tapes@$TAPES_DIGEST" voyager/data
 dl_ghcr "sigils@$SIGILS_DIGEST" voyager/data/static
