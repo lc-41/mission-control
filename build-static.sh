@@ -23,16 +23,18 @@ find vendor -newer Cargo.lock -print0 | xargs -0r touch --no-dereference --refer
 # do build.rs's asset generation
 pushd vendor/before
 npm ci --production=false
-touch static  # force build.rs to rerun despite cache
+touch public  # force build.rs to rerun despite cache
 popd
 cargo check -p player --features bundle_before
 cargo clean
 
 pushd vendor/before
-find static -newer Cargo.lock -print0 | xargs -0r touch --no-dereference --reference=Cargo.lock
-zip -9qr static.zip static
-rm -rf static/*
-echo "see static.zip elsewhere on the Voyager disc" > static/README
+find out -newer Cargo.lock -print0 | xargs -0r touch --no-dereference --reference=Cargo.lock
+pushd out
+zip -9qr ../static.zip .
+popd
+rm -rf out/*
+echo "see static.zip elsewhere on the Voyager disc" > out/README
 popd
 mv vendor/before/static.zip artifacts/
 
