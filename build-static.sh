@@ -27,14 +27,18 @@ touch public  # force build.rs to rerun despite cache
 popd
 cargo check -p player --features bundle_before
 cargo clean
+# we're just using what's in node_modules to build some static HTML and CSS,
+# and a lot of what's shipped via npm is not even human-readable source code.
+# the value of shipping node_modules on the disc is not very high
+rm -rf vendor/before/node_modules
 
 pushd vendor/before
 find out -newer Cargo.lock -print0 | xargs -0r touch --no-dereference --reference=Cargo.lock
 pushd out
 zip -9qr ../static.zip .
 popd
-rm -rf out/*
-echo "see static.zip elsewhere on the Voyager disc" > out/README
+rm -rf out public/*
+echo "see static.zip elsewhere on the Voyager disc" > public/README
 popd
 mv vendor/before/static.zip artifacts/
 
