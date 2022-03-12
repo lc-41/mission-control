@@ -5,9 +5,9 @@ on:
       - main
 
 env:
-  RUST_VER: '1.58.1'
+  RUST_VER: "1.58.1"
   VCR_COMMIT: b2ed833f568e0f4df345a76459306f6cbcf3108a
-  TAPES_DIGEST: sha256:9b3bc1efc018a3bfa6a5d897ad8f4d74b134cd103d4d905963abd199b9c964c3 
+  TAPES_DIGEST: sha256:9b3bc1efc018a3bfa6a5d897ad8f4d74b134cd103d4d905963abd199b9c964c3
   SIGILS_DIGEST: sha256:ac57e7acc0dd67a89ea3f889209dfdd20652243d1e2683b2781ecaae4dd95c78
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       RUSTFLAGS: -C target-feature=+crt-static
       CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: ${{ matrix.cargo-linker }}
     steps:
-      - run: sudo apt-get install -y gcc-aarch64-linux-gnu
+      - run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu
         if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
       - run: rustup default ${{ env.RUST_VER }}
       - run: rustup target add ${{ matrix.target }} --toolchain ${{ env.RUST_VER }}
