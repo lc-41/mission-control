@@ -86,7 +86,7 @@ jobs:
       - run: rustup default ${{ env.RUST_VER }}
       - uses: actions/checkout@v2
         with:
-          repository: alisww/blaseball.vcr
+          repository: emily-signet/blaseball.vcr
           ref: ${{ env.VCR_COMMIT }}
           fetch-depth: 0
       - uses: chetan/git-restore-mtime-action@v1
