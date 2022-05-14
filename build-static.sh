@@ -23,10 +23,8 @@ find vendor -newer Cargo.lock -print0 | xargs -0r touch --no-dereference --refer
 # do build.rs's asset generation
 pushd vendor/before
 npm ci --production=false
-touch public  # force build.rs to rerun despite cache
+npm run build
 popd
-cargo check -p player --features bundle_before
-cargo clean
 # we're just using what's in node_modules to build some static HTML and CSS,
 # and a lot of what's shipped via npm is not even human-readable source code.
 # the value of shipping node_modules on the disc is not very high
