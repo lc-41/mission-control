@@ -4,19 +4,8 @@ static_zip_path = "./data/static.zip"
 site_cache = true
 
 [default.vcr]
-entities_cache_size = 100
-tapes = "./data/tapes/"
-site_assets = "./data/tapes/site_data/"
-zstd_dictionaries = "./data/zstd-dictionaries/"
-cors = true
-time_responses = true
-stream_data_step = 2
-open_in_browser = true
-
-[default.vcr.feed]
-index = "./data/tapes/feed/feed.fp"
-path = "./data/tapes/feed/feed.riv"
-dict = "./data/zstd-dictionaries/feed.dict"
-id_table = "./data/tapes/feed/id_lookup.bin"
-tag_table = "./data/tapes/feed/tag_indexes.fp"
-cache_size = 50
+tapes_folder = "./data/vhs_tapes"
+feed_tape = "./data/vhs_tapes/feed.vhs"
+site_tape = "./data/vhs_tapes/site_assets.vhs"
+time_requests = true
+check_site_tapes = false
