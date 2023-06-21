@@ -1,8 +1,9 @@
 name: Build Voyager
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+#   push:
+#     branches:
+#       - main
 
 env:
   RUST_VER: "1.70.0"
